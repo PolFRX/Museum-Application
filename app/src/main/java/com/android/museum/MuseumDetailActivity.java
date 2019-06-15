@@ -104,6 +104,7 @@ public class MuseumDetailActivity extends AppCompatActivity {
         addPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // On créé une image temporaire qui accueillera la photo prise avec la caméra
                 Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if(pictureIntent.resolveActivity(getPackageManager()) != null){
                     //Create a file to store the image
@@ -126,11 +127,13 @@ public class MuseumDetailActivity extends AppCompatActivity {
     }
 
     private File createImageFile() throws IOException {
+        // On génère un nom de fichier unique
         String timeStamp =
                 new SimpleDateFormat("yyyyMMdd_HHmmss",
                         Locale.getDefault()).format(new Date());
         String imageFileName = "IMG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        // On créé l'image temporaire
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
@@ -143,6 +146,7 @@ public class MuseumDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Résultat de la prise de photo
         if (resultCode == Activity.RESULT_OK) {
             uploadFile();
         } else if(resultCode == Activity.RESULT_CANCELED) {
@@ -151,6 +155,7 @@ public class MuseumDetailActivity extends AppCompatActivity {
     }
 
     private void get_pic(){
+        // On récupère les photos du musée
         @SuppressLint("HandlerLeak")
         final Handler handler = new Handler(){
             @Override
@@ -188,8 +193,7 @@ public class MuseumDetailActivity extends AppCompatActivity {
     }
 
     /**
-     * 网络加载图片
-     * 使用了Glide图片加载框架
+     * On utilise Glide pour afficher toutes les images
      */
     private class MyLoader extends ImageLoader {
         @Override
@@ -199,7 +203,7 @@ public class MuseumDetailActivity extends AppCompatActivity {
     }
 
     private void uploadFile() {
-        // create upload service client
+        // On créé le service retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://vps449928.ovh.net/api/musees/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -212,12 +216,12 @@ public class MuseumDetailActivity extends AppCompatActivity {
         RequestBody requestFile =
                 RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
-        // MultipartBody.Part is used to send also the actual file name
+        // On lie le fichier avec son nom et sa description
         MultipartBody.Part body = MultipartBody.Part
                 .createFormData("file", file.getName(), requestFile);
         RequestBody description = RequestBody.create(MultipartBody.FORM, "image-type");
 
-        // finally, execute the request
+        // On exécute la requête
         Call<ResponseBody> call = service.uploadPhotoMuseum(body, description, id);
         call.enqueue(new Callback<ResponseBody>() {
 

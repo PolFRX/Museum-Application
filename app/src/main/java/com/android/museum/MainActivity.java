@@ -47,17 +47,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 绑定控件
+        // Les éléments de la vue
         FloatingActionButton bt_scan = (FloatingActionButton) findViewById(R.id.scan_code);
         lv_museum = findViewById(R.id.museum_list);
         tv_none = findViewById(R.id.none);
 
-        //初始化控件
+        // On change les visibilités
         lv_museum.setVisibility(View.GONE);
         tv_none.setVisibility(View.VISIBLE);
 
         sqLiteHelper = new SQLiteHelper(this);
         museum_list = sqLiteHelper.get_museum_list();
+        //On charge la liste depuis ce qu'on a récupére dans la bdd
         if (museum_list!=null){
             lv_museum.setVisibility(View.VISIBLE);
             tv_none.setVisibility(View.GONE);
@@ -74,16 +75,17 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+
         bt_scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // On configure le scanner qr code puis on le lance
                 IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
-                // 设置要扫描的条码类型，ONE_D_CODE_TYPES：一维码，QR_CODE_TYPES-二维码
                 integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
-                integrator.setCaptureActivity(CaptureActivity.class);           //设置打开摄像头的Activity
-                integrator.setPrompt("Scannez le code barre");               //底部的提示文字，设为""可以置空
-                integrator.setCameraId(0);                                      //前置或者后置摄像头
-                integrator.setBeepEnabled(true);                                //扫描成功的「哔哔」声，默认开启
+                integrator.setCaptureActivity(CaptureActivity.class);
+                integrator.setPrompt("Scannez le code barre");
+                integrator.setCameraId(0);   // camera principale
+                integrator.setBeepEnabled(true);
                 integrator.setBarcodeImageEnabled(true);
                 integrator.initiateScan();
             }
@@ -92,13 +94,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 二维码扫描结果回调
-     * @param requestCode 请求码
-     * @param resultCode 结果码
-     * @param data 数据
+     * Fonction pour prendre le résultat du scan QR code
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null){
+            // Si rien n'a été scanné
             Toast.makeText(this, "QR code vide", Toast.LENGTH_SHORT).show();
         }else{
             IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Code barre", result);
                 //Toast.makeText(this, result, Toast.LENGTH_LONG).show();
                 try{
+                    // Appel à l'api via retrofit
                     Retrofit retrofit = new Retrofit.Builder()
                             .baseUrl("http://vps449928.ovh.net/api/musees/")
                             .addConverterFactory(GsonConverterFactory.create())
@@ -119,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<Museum> call, Response<Museum> response) {
                             if (response.isSuccessful()) {
+                                // Si l'api a bien retourné des informations on les enregistre puis
+                                // on lance l'activité
                                 Museum museum = response.body();
                                 museum.save(sqLiteHelper);
                                 Intent intent = new Intent(MainActivity.this, MuseumDetailActivity.class);
@@ -130,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<Museum> call, Throwable t) {
+                            // Erreur due à une mauvaise connexion
                             Toast.makeText(MainActivity.this, "Connexion non disponible", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -161,6 +165,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launchMuseumActivity(Intent intent, Museum museum) {
+        // fonction pour charger les variables dans l'activité puis lancer l'activité sur les informations
+        // du musée
         intent.putExtra("id", museum.getId());
         intent.putExtra("name", museum.getNom());
         intent.putExtra("open_time", museum.getPeriode_ouverture());
