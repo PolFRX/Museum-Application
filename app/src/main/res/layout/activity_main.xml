@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.android.museum.MainActivity">
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Musées enregistrés"
+        android:textColor="#000"
+        android:textSize="28sp"
+        android:layout_gravity="center"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ccc"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#000" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/museum_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="#ccc"
+            android:dividerHeight="1dp"/>
+
+        <TextView
+            android:id="@+id/none"
+            android:layout_width="match_parent"
+            android:layout_height="581dp"
+            android:gravity="center"
+            android:text="Aucun musée enregistré"
+            android:textColor="#ccc"
+            android:textSize="20sp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/scan_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_margin="20dp"
+            android:clickable="true"
+            app:backgroundTint="@android:color/holo_blue_dark"
+            app:borderWidth="0dp"
+            app:elevation="6dp"
+            app:srcCompat="@drawable/ic_qr_code" />
+
+    </FrameLayout>
+
+
+</LinearLayout>
